@@ -139,7 +139,7 @@ class AddMovie extends Component {
     }
 
 
-    uploadedFiles.forEach(file => this.processUpload(file, name));
+    //uploadedFiles.forEach(file => this.processUpload(file, name));
   };
 
   updateFile = (name, id, data) => {
@@ -198,8 +198,6 @@ class AddMovie extends Component {
         }
       })
       .then(response => {
-        this.setState({idMovie: response.data._id})
-        console.log(response.data._id)
         this.updateFile(name, uploadedFile.id, {
           uploaded: true,
           url: response.data.url
