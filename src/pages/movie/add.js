@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 //import MovieDataService from "../../services/movie.service";
-import './styles.css';
 
 import api from "../../services/http-common";
 
@@ -20,12 +19,13 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
 import DatePicker from '@mui/lab/DatePicker';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
+
+import { Generos } from '../../components/Utils/ExportArray'
 
 const styles = {
   root: {
@@ -81,12 +81,31 @@ class AddMovie extends Component {
     }));
 
   }
+  postGenero = () => {
+    Generos.map(item => {
+      let bodyFormData = {
+        genero: item.label,
+      }
+      api.post("/generos/incluir", bodyFormData)
+        .then(res => {
+          console.log('POST Genero', res.data)
+        })
+        .catch(err => {
+          window.alert(err)
+        })
+    })
+    setTimeout(this.getGenero(), 3000)
+
+  }
 
   getGenero = () => {
     api.get("generos")
       .then(response => {
         if (response.status === 200) {
           const generos = response.data;
+          if (generos.length < Generos.length) {
+            this.postGenero()
+          }
           this.setState({ generos: generos })
         }
       })
@@ -121,12 +140,14 @@ class AddMovie extends Component {
         this.setState({
           uploadedFilmes: this.state.uploadedFilmes.concat(uploadedFiles)
         });
+        uploadedFiles.forEach(file => this.processUpload(file, name));
         break;
       }
       case 'capa': {
         this.setState({
           uploadedCapa: this.state.uploadedCapa.concat(uploadedFiles)
         });
+        uploadedFiles.forEach(file => this.processUpload(file, name));
         break;
       }
       case 'backdrop': {
@@ -134,11 +155,13 @@ class AddMovie extends Component {
         this.setState({
           uploadeDrop: this.state.uploadeDrop.concat(uploadedFiles)
         });
+        uploadedFiles.forEach(file => this.processUpload(file, name));
+
         break;
       }
     }
 
-
+    console.log('gerallll>>>>>>>>', uploadedFiles)
     //uploadedFiles.forEach(file => this.processUpload(file, name));
   };
 
@@ -246,23 +269,19 @@ class AddMovie extends Component {
          }
        }*/
 
-      if (idMovie) {
-
-        api.post('/movie/incluir'+ idMovie , bodyFormData)
-          .then(result => {
-            if (result.status) {
-              console.log('fORMULARIO ENVIADO')
-              //this.setState({ redirect: true, isLoading: false })
-            }
-          })
-          .catch(error => {
-            //this.setState({ toDashboard: true });
+      api.post('/movie/incluir' + idMovie, bodyFormData)
+        .then(result => {
+          if (result.status) {
+            console.log('fORMULARIO ENVIADO')
             //this.setState({ redirect: true, isLoading: false })
-            console.log(error);
-          });
-      } else {
-        console.log('Filme vazio')
-      }
+          }
+        })
+        .catch(error => {
+          //this.setState({ toDashboard: true });
+          //this.setState({ redirect: true, isLoading: false })
+          console.log(error);
+        });
+
     } catch (e) {
       console.log(e)
       this.setState({ isLoading: false })
@@ -307,11 +326,11 @@ class AddMovie extends Component {
                               }
                             }}
                             InputProps={{
-                              className: this.props.classes.input
+                              className: this.props.classes.cssLabel
                             }}
                             fullWidth
                             multiline
-                            rowsMax={1}
+                            maxRows={1}
                             value={titulo}
                             onChange={this.handleChangeTitulo}
 
@@ -348,7 +367,7 @@ class AddMovie extends Component {
                       <div className="form-row">
                         <div className="col-md-6">
                           <TextField
-                            type="tel"
+                            type="number"
                             required
                             id="standard-multiline-flexible"
                             label="Classificação"
@@ -358,6 +377,9 @@ class AddMovie extends Component {
                                 root: this.props.classes.cssLabel,
                                 //focused: this.props.classes.cssFocused
                               }
+                            }}
+                            InputProps={{
+                              className: this.props.classes.cssLabel
                             }}
                             fullWidth
                             rowsMax={1}
@@ -376,18 +398,20 @@ class AddMovie extends Component {
                               onChange={(newValue) => {
                                 this.setState({ ano: newValue });
                               }}
-
                               renderInput={(params) => <TextField {...params}
                                 helperText={null}
                                 error={false}
-                                color="primary"
-                                style={{ width: '100%' }}
+                                //color="primary"
+                                style={{ width: '100%', color: 'white' }}
                                 InputLabelProps={{
-                                  shrink: true,
+
                                   classes: {
                                     root: this.props.classes.cssLabel,
                                     //focused: this.props.classes.cssFocused
                                   }
+                                }}
+                                InputProps={{
+                                  className: this.props.classes.cssLabel
                                 }}
                               />}
                             />
@@ -408,6 +432,9 @@ class AddMovie extends Component {
                               root: this.props.classes.cssLabel,
                               //focused: this.props.classes.cssFocused
                             }
+                          }}
+                          InputProps={{
+                            className: this.props.classes.cssLabel
                           }}
                           fullWidth
                           multiline
