@@ -19,6 +19,7 @@
     "bootstrap": "^4.6.0",
     "date-fns": "^2.25.0",
     "filesize": "^6.3.0",
+    "get-blob-duration": "^1.2.0",
     "jquery": "^3.6.0",
     "lodash": "^4.17.21",
     "react": "^17.0.2",

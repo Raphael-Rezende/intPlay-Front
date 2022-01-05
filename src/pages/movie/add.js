@@ -26,6 +26,9 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
 import { Generos } from '../../components/Utils/ExportArray'
+import getBlobDuration from 'get-blob-duration'
+
+import { Types } from '../../components/Utils/Types'
 
 const styles = {
   root: {
@@ -135,7 +138,7 @@ class AddMovie extends Component {
 
     // eslint-disable-next-line default-case
     switch (name) {
-      case 'filmes': {
+      case Types.movie: {
 
         this.setState({
           uploadedFilmes: this.state.uploadedFilmes.concat(uploadedFiles)
@@ -143,14 +146,14 @@ class AddMovie extends Component {
         uploadedFiles.forEach(file => this.processUpload(file, name));
         break;
       }
-      case 'capa': {
+      case Types.capa: {
         this.setState({
           uploadedCapa: this.state.uploadedCapa.concat(uploadedFiles)
         });
         uploadedFiles.forEach(file => this.processUpload(file, name));
         break;
       }
-      case 'backdrop': {
+      case Types.backdrop: {
 
         this.setState({
           uploadeDrop: this.state.uploadeDrop.concat(uploadedFiles)
@@ -161,14 +164,13 @@ class AddMovie extends Component {
       }
     }
 
-    console.log('gerallll>>>>>>>>', uploadedFiles)
     //uploadedFiles.forEach(file => this.processUpload(file, name));
   };
 
   updateFile = (name, id, data) => {
     // eslint-disable-next-line default-case
     switch (name) {
-      case 'filmes': {
+      case Types.movie: {
         this.setState({
           uploadedFilmes: this.state.uploadedFilmes.map(uploadedFilmes => {
             return id === uploadedFilmes.id
@@ -178,7 +180,7 @@ class AddMovie extends Component {
         });
         break;
       }
-      case 'capa': {
+      case Types.capa: {
         this.setState({
           uploadedCapa: this.state.uploadedCapa.map(uploadedCapa => {
             return id === uploadedCapa.id
@@ -189,7 +191,7 @@ class AddMovie extends Component {
 
         break;
       }
-      case 'backdrop': {
+      case Types.backdrop: {
 
         this.setState({
           uploadeDrop: this.state.uploadeDrop.map(uploadeDrop => {
@@ -211,7 +213,7 @@ class AddMovie extends Component {
     data.append(name, uploadedFile.file, uploadedFile.name);
 
     api
-      .post("/movie/incluir", data, {
+      .post("/movie/incluirFiles", data, {
         onUploadProgress: e => {
           const progress = parseInt(Math.round((e.loaded * 100) / e.total));
 
@@ -221,10 +223,34 @@ class AddMovie extends Component {
         }
       })
       .then(response => {
+
         this.updateFile(name, uploadedFile.id, {
           uploaded: true,
-          url: response.data.url
+          url: response.data
         });
+        // eslint-disable-next-line default-case
+        switch (name) {
+          case Types.capa: {
+            this.setState({ capa: response.data, size: uploadedFile.readableSize })
+            break
+          }
+          case Types.backdrop: {
+            this.setState({ backdrop: response.data, size: uploadedFile.readableSize })
+            break
+          }
+          case Types.movie: {
+            this.setState({ url: response.data, size: uploadedFile.readableSize })
+
+            getBlobDuration(uploadedFile.file)
+              .then((duration) => {
+                this.setState({ duracao: duration })
+              })
+              .catch(err => {
+                console.log('erro de audio duration', err)
+              })
+            break;
+          }
+        }
       })
       .catch(() => {
         this.updateFile(name, uploadedFile.id, {
@@ -269,7 +295,7 @@ class AddMovie extends Component {
          }
        }*/
 
-      api.post('/movie/incluir' + idMovie, bodyFormData)
+      api.post('/movie/incluir', bodyFormData)
         .then(result => {
           if (result.status) {
             console.log('fORMULARIO ENVIADO')
@@ -298,7 +324,7 @@ class AddMovie extends Component {
             <div className="container-fluid">
 
               <div className="card mb-3" style={{ backgroundColor: '#111', borderRadius: 16, borderColor: '#1976D2' }}>
-                <div className="card-header" style={{ backgroundColor: '#1976D2', borderStartEndRadius: 16, borderStartStartRadius: 16 }}>
+                <div className="card-header" style={{ backgroundColor: '#1430f0', borderStartEndRadius: 16, borderStartStartRadius: 16 }}>
                   <div className="row">
                     <div className="col-sm-2">
                       <i className="fas fa-table"></i>
@@ -454,9 +480,9 @@ class AddMovie extends Component {
                           <Typography>Capa do Filme</Typography><br />
 
                           {!!uploadedCapa.length ? (
-                            <FileList files={uploadedCapa} name="capa" onDelete={this.handleDelete} />
+                            <FileList files={uploadedCapa} name={Types.capa} onDelete={this.handleDelete} />
                           ) :
-                            <Upload onUpload={(files) => { this.handleUpload(files, 'capa') }} accept="image/*" />
+                            <Upload onUpload={(files) => { this.handleUpload(files, Types.capa) }} accept="image/*" />
                           }
 
                         </div>
@@ -470,9 +496,9 @@ class AddMovie extends Component {
                           <Typography>Backdrop do Filme</Typography><br />
 
                           {!!uploadeDrop.length ? (
-                            <FileList files={uploadeDrop} name="backdrop" onDelete={this.handleDelete} />
+                            <FileList files={uploadeDrop} name={Types.backdrop} onDelete={this.handleDelete} />
                           ) :
-                            <Upload onUpload={(files) => { this.handleUpload(files, 'backdrop') }} accept="image/*" />
+                            <Upload onUpload={(files) => { this.handleUpload(files, Types.backdrop) }} accept="image/*" />
                           }
 
                         </div>
@@ -487,9 +513,9 @@ class AddMovie extends Component {
                           <Typography>Filme</Typography><br />
 
                           {!!uploadedFilmes.length ? (
-                            <FileList files={uploadedFilmes} name="filmes" onDelete={this.handleDelete} />
+                            <FileList files={uploadedFilmes} name={Types.movie} onDelete={this.handleDelete} />
                           ) :
-                            <Upload onUpload={(files) => { this.handleUpload(files, 'filmes') }} accept="video/*" />
+                            <Upload onUpload={(files) => { this.handleUpload(files, Types.movie) }} accept="video/*" />
                           }
 
                         </div>
