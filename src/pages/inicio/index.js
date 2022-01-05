@@ -1,22 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
 import MovieList from '../../components/Utils/MovieList';
 import MovieRow from '../../components/MovieRow/index';
 import FeaturedMovie from '../../components/FeaturedMovie/index';
 import Header from '../../components/Header/index';
-import Button from '../../components/Botao/index'
-
-import {
-  Modal,
-  useModal,
-  ModalTransition,
-} from 'react-simple-hook-modal';
-
-
-import { ModalProvider } from 'react-simple-hook-modal';
-
 
 
 // eslint-disable-next-line import/no-anonymous-default-export
@@ -25,22 +14,25 @@ export default () => {
   const [movieList, setMovieList] = useState([]);
   const [featuredData, setFeaturedData] = useState(null);
   const [blackHeader, setblackHeader] = useState(false);
+  const [dashVisible, setdashVisible] = useState(false);
 
-  const { isModalOpen, openModal, closeModal } = useModal();
   useEffect(() => {
     const loadAll = async () => {
       let list = await MovieList.getHomeList();
+      //
       setMovieList(list);
-      /*
-      let originals = list.filter(i => i.slug === 'originals');
-      let randonChosen = Math.floor(Math.random() * (originals[0].items.results.length - 1));
-      let chosen = originals[0].items.results[randonChosen]
-      let chosenInfo = await MovieList.getMovieInfo(chosen.id, 'tv');
-      setFeaturedData(chosenInfo);*/
+
+      let originals = list.filter(i => i.slug === 'toprated');
+      let randomChosen = Math.floor(Math.random() * (originals[0].items.length - 1));
+      let movieChosen = originals[0].items[randomChosen];
+
+      let movieChosenData = movieChosen;
+      setFeaturedData(movieChosenData);
     }
 
     loadAll();
   }, []);
+
 
   useEffect(() => {
     const scrollListener = () => {
@@ -50,18 +42,34 @@ export default () => {
         setblackHeader(false);
       }
     }
+    const cadastrar = (event) => {
+      const ESCAPE_KEY = 27;
+      const C_KEY = 67
+      if (event.keyCode === C_KEY && event.ctrlKey) {
+        setdashVisible(true)
+        return
+      }
+      if (event.keyCode === ESCAPE_KEY) {
+        setdashVisible(false)
+        return
+      }
+
+
+    }
 
     window.addEventListener('scroll', scrollListener);
+    window.addEventListener('keydown', cadastrar);
 
     return () => {
       window.removeEventListener('scroll', scrollListener);
+      window.removeEventListener('keydown', cadastrar);
     }
   }, []);
 
   return (
     <div className="page">
 
-      <Header button={<li className="ml-auto">   <Link className="btn btn-sm btn-info" to={{ pathname: '/dashboard'}}>Cadastrar</Link></li>} black={blackHeader} />
+      <Header dash={dashVisible} button={<li className="ml-auto">   <Link className="btn btn-sm btn-info" to={{ pathname: '/dashboard' }}>Cadastrar</Link></li>} black={blackHeader} />
 
       {featuredData &&
         <FeaturedMovie item={featuredData} />
@@ -75,15 +83,15 @@ export default () => {
         }
       </section>
       <footer>
-        Feito em Live (https://www.youtube.com/watch?v=tBweoUiMsDg) para estudo de react, todos os direitos das imagens são da Netflix.
-        Dados Extraidos de https://www.themoviedb.org/
+        Aproveitem
       </footer>
 
 
-      {movieList.length > 0 &&
+      {movieList.length <= 0 ?
         <div className="loading">
-          <img src="https://cdn.lowgif.com/small/0534e2a412eeb281-the-counterintuitive-tech-behind-netflix-s-worldwide.gif" alt="loading"></img>
+          <img src={process.env.PUBLIC_URL + "/loading.gif"} alt="loading"></img>
         </div>
+        : null
       }
     </div>
   )
