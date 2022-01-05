@@ -4,7 +4,7 @@ import { MdCheckCircle, MdError, MdLink } from "react-icons/md";
 
 import { Container, FileInfo, Preview } from "./styles";
 
-const FileList = ({ files, onDelete }) => (
+const FileList = ({ files, onDelete, name }) => (
   <Container>
     {files.map(uploadedFile => (
       <li key={uploadedFile.id}>
@@ -15,12 +15,12 @@ const FileList = ({ files, onDelete }) => (
             <span>
               {uploadedFile.readableSize}{" "}
               {!uploadedFile.url ? (
-                <button type="button" onClick={() => onDelete(uploadedFile.id)}>
+                <button type="button" onClick={() => onDelete(uploadedFile.id, uploadedFile.url, name)}>
                   Cancelar
                 </button>
               ) :
                 (
-                  <button type="button" onClick={() => onDelete(uploadedFile.id)}>
+                  <button type="button" onClick={() => onDelete(uploadedFile.id, uploadedFile.url, name)}>
                     Excluir
                   </button>
                 )}

@@ -259,12 +259,41 @@ class AddMovie extends Component {
       });
   };
 
-  handleDelete = async id => {
-    await api.delete(`movies/${id}`);
+  handleDelete = (id, url, paste) => {
+    var nameExtrac = url.split('\\').pop()
+    api.delete(`movie/deleteFile/${paste}/${nameExtrac}`)
+      .then(res => {
+        // eslint-disable-next-line default-case
+        switch (paste) {
+          case Types.capa: {
 
-    this.setState({
-      uploadedCapa: this.state.uploadedCapa.filter(file => file.id !== id)
-    });
+            this.setState({
+              uploadedCapa: this.state.uploadedCapa.filter(file => file.id !== id),
+              capa: ''
+            });
+            break
+          }
+          case Types.backdrop: {
+            this.setState({
+              uploadeDrop: this.state.uploadeDrop.filter(file => file.id !== id),
+              backdrop: ''
+            });
+            break
+          }
+          case Types.movie: {
+            this.setState({
+              uploadedFilmes: this.state.uploadedFilmes.filter(file => file.id !== id),
+              url: ''
+            });
+            break;
+          }
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      })
+
+
   };
 
   componentWillUnmount() {
