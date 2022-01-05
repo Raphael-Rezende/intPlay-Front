@@ -43,7 +43,7 @@ const FileList = ({ files, onDelete, name }) => (
 
           {uploadedFile.url && (
             <a
-              href={uploadedFile.url}
+              href={process.env.REACT_APP_PUBLIC_URL + uploadedFile.url}
               target="_blank"
               rel="noopener noreferrer"
             >
