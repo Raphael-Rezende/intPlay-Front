@@ -15,13 +15,13 @@ export default ({item}) => {
     if(descr.length > 200){
         descr = descr.substring(0, 200)  + '...';
      }
-
+     console.log('path back',  process.env.REACT_APP_PUBLIC_URL + item.backdrop.replaceAll('\\','/'))
 
     return (
         <section className="featured" style={{
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            backgroundImage: `url(${item.backdrop})`
+            backgroundImage: `url(${ process.env.REACT_APP_PUBLIC_URL + item.backdrop.replaceAll('\\','/')})`
         }}>
             <div className="featured--vertical">
                 <div className="featured--horizontal">

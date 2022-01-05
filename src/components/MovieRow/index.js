@@ -47,17 +47,15 @@ function MovieRow({ title, items, type }) {
         >
           {
             items.length > 0 &&
-            items.map((item, key) => {
-
-              const path = process.env.REACT_APP_PUBLIC_URL + '/tmp/'
-              const capa = item.capa.split('\\tmp\\').pop();
-
-              console.log('path', path + capa.replaceAll('\\', '/'))
+            items.map((item, key) => {   
+              const path = process.env.REACT_APP_PUBLIC_URL + item.capa   
+              
+              console.log('path', path)
               return (
                 item.capa !== null &&
                 <div key={key} className="movieRow--item">
                   <Link to={`/details/${type}/${item}`}>
-                    <img alt={item.titulo} src={path + capa} />
+                    <img alt={item.titulo} src={path} />
                   </Link>
                 </div>
               )
