@@ -5,46 +5,53 @@ import AspectRatioIcon from '@material-ui/icons/AspectRatio';
 import './styles.css';
 import { Link } from 'react-router-dom';
 
-function Details(){
+function Details() {
     const { id, type } = useParams();
 
     const [movieDetails, setMovieDetails] = useState({});
     const [urlVideo, setUrlVideo] = useState();
     const [videoFullScreen, setVideoFullScreen] = useState(false);
     const [descriptionVideo, setDescriptionVideo] = useState();
+    const [movieBackDrop, setmovieBackDrop] = useState({});
 
     useEffect(() => {
         const loadAll = async () => {
-            let movie = id
-           // let trailer = await MovieList.getTrailerVideo(id, type)
-            setMovieDetails(movie);
-            setUrlVideo(movie.url);
-            setDescriptionVideo(movie.sinopse.length > 120 ? movie.sinopse.substring(0, 120) + '...' : movie.sinopse);
-            //console.log(movie)
+            console.log('loadAll')
+            let movie = await MovieList.getMovieInfo(id, type)
+            console.log('movie', movie)
+            if (movie) {
+                // let trailer = await MovieList.getTrailerVideo(id, type)
+                setMovieDetails(movie);
+                setmovieBackDrop(encodeURI(process.env.REACT_APP_PUBLIC_URL + movie.backdrop.replaceAll('\\', '/')))
+                setUrlVideo(process.env.REACT_APP_PUBLIC_URL + movie.url);
+                setDescriptionVideo(movie.sinopse.length > 120 ? movie.sinopse.substring(0, 120) + '...' : movie.sinopse);
+                //console.log(movie)
+            }
         }
         loadAll();
     }, [id, type])
 
 
-    function handleVideoFullScreen(){
+    function handleVideoFullScreen() {
         setVideoFullScreen(!videoFullScreen);
     }
-    
-    
+
+
     return (
-        <main 
-            className="details" 
+        <main
+            className="details"
             style={{
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                backgroundImage: `url(${movieDetails.backdrop})`
+                backgroundImage: `url(${movieBackDrop})`
+
             }}
-        >   
-        <Link to="/" className="details--backbutton">Voltar</Link>
-            <section> 
+        >
+            <Link to="/" className="details--backbutton">Voltar</Link>
+            <section>
                 <div>
                     <div className="details--info">
-                        <h3 className={'positive'}>{10}</h3>
+                        <h3 className={movieDetails.classificacao < 16 ? 'positive' : 'negative'}>{movieDetails.classificacao}</h3>
                     </div>
 
                     <h1>{movieDetails.titulo}</h1>

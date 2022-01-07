@@ -72,12 +72,14 @@ export default () => {
       <Header dash={dashVisible} button={<li className="ml-auto">   <Link className="btn btn-sm btn-info" to={{ pathname: '/dashboard' }}>Cadastrar</Link></li>} black={blackHeader} />
 
       {featuredData &&
-        <FeaturedMovie item={featuredData} />
+        <div>
+          <FeaturedMovie item={featuredData} />
+        </div>
       }
 
       <section className="lists">
         {movieList.map((item, key) => (
-          <MovieRow key={key} title={item.title} items={item.items}></MovieRow>
+          <MovieRow key={key} title={item.title} type={item.type} items={item.items}></MovieRow>
         ))
 
         }

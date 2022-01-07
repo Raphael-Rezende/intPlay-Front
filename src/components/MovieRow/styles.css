@@ -1,6 +1,16 @@
+.row{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    width: 100%;
+
+}
+
 .movieRow{
     margin-bottom: 30px;
 }
+
 
 .movieRow h2 {
     margin: 0px 0px 0px 30px;
@@ -9,6 +19,7 @@
 .movieRow--listarea {
     overflow-x : hidden;
     padding-left: 30px;
+    width: 90%;
 }
 
 .movieRow--list {
@@ -35,8 +46,7 @@
  .movieRow-left,
  .movieRow-right {
     position:absolute;   
-    width: 40px;
-    height: 225px;
+    width: 5%;
     background-color:rgba(0,0,0,0.6);
     z-index: 99;
     display: flex;
@@ -49,10 +59,12 @@
 }
 
  .movieRow-left{
+    position: absolute;
      left: 0;
  }
 
  .movieRow-right{
+    position: absolute;
     right: 0;
 }
 

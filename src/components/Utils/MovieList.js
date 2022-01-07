@@ -15,7 +15,6 @@ const basicFetch = async (endpoint) => {
     
     const req = await fetch(`${API_BASE}${endpoint}`);
     const json = await req.json();
-    console.log('requisao', json)
     return json;
 }
 
@@ -60,19 +59,19 @@ export const MovieList = {
             }*/
         ]
     },
-        getMovieInfo: async (Id, type) => {
+        getMovieInfo: async (id, type) => {
             let info = {};
-
-            if (Id) {
+            
+            if (id) {
                 switch (type) {
                     case 'movie':
-                        info = await basicFetch(`/movie/${Id}`);
+                        info = await basicFetch(`/movie/${id}`);
                         break;
                     case 'tv':
-                        info = await basicFetch(`/tv/${Id}`);
+                        info = await basicFetch(`/tv/${id}`);
                         break;
                     case 'serie':
-                        info = await basicFetch(`/serie/${Id}`);
+                        info = await basicFetch(`/serie/${id}`);
                         break;
                     default:
                         info = null;
