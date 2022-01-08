@@ -20,17 +20,18 @@ export default () => {
 
   useEffect(() => {
     const loadAll = async () => {
-      let list = await MovieList.getHomeList();
       //
+      let list = await MovieList.getHomeList();
+      console.log(list)
       setMovieList(list);
 
       let originals = list.filter(i => i.slug === 'toprated');
-      if(originals.length > 0) {
+      if (originals.length > 0) {
 
         let randomChosen = Math.floor(Math.random() * (originals[0].items.length - 1));
         let movieChosen = originals[0].items[randomChosen];
         let movieType = originals[0].type;
-        
+
         let movieChosenData = movieChosen;
         setmovieType(movieType)
         setFeaturedData(movieChosenData);
@@ -85,7 +86,7 @@ export default () => {
       }
 
       <section className="lists">
-        {movieList.map((item, key) => (
+        {movieList.length > 0 && movieList.map((item, key) => (
           <Slider type={item.type}>
             {item.items.map(movie => (
               <Slider.Item movie={movie} key={movie.id}>{movie.titulo}</Slider.Item>

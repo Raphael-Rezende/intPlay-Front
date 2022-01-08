@@ -9,7 +9,7 @@ export default ({ item, type }) => {
 
     useEffect(() => {
         const loadAll = async () => {
-            
+
             setmovieBackDrop(process.env.REACT_APP_PUBLIC_URL + item.backdrop.replaceAll('\\', '/'))
         }
         loadAll();
@@ -19,10 +19,13 @@ export default ({ item, type }) => {
     for (let i in item.generos) {
         genres.push(item.generos[i].genero);
     }
+    let descr = ''
+    if (!!item.sinopse) {
 
-    let descr = item.sinopse;
-    if (descr.length > 200) {
-        descr = descr.substring(0, 200) + '...';
+        descr = item.sinopse;
+        if (descr.toString().length > 200) {
+            descr = descr.substring(0, 200) + '...';
+        }
     }
 
     return (

@@ -33,11 +33,15 @@ const FileList = ({ files, onDelete, name }) => (
             !uploadedFile.error && (
               <CircularProgressbar
                 styles={{
-                  root: { width: 24 },
-                  path: { stroke: "#7159c1" }
+                  root: { width: 50, },
+                  path: { stroke: "#7159c1" },
+                  text: { fontSize: '17px', fill: '#eee', }
                 }}
+                value={uploadedFile.progress}
                 strokeWidth={10}
-                percentage={uploadedFile.progress}
+                text={`${uploadedFile.progress}%`}
+
+
               />
             )}
 

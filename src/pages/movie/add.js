@@ -2,6 +2,7 @@ import React, { Component } from "react";
 //import MovieDataService from "../../services/movie.service";
 
 import api from "../../services/http-common";
+import axios from "axios";
 
 import Upload from "../../components/Upload/index"
 import Header from "../../elements/header";
@@ -24,11 +25,25 @@ import PropTypes from "prop-types";
 import DatePicker from '@mui/lab/DatePicker';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import Divider from '@mui/material/Divider';
 
-import { Generos } from '../../components/Utils/ExportArray'
 import getBlobDuration from 'get-blob-duration'
 
+
+import {
+  Botao,
+  Input,
+  Label,
+  Container,
+  HelperText,
+  ModalCustomizad,
+  Title,
+  Select,
+  Warning
+} from './styles';
+
 import { Types } from '../../components/Utils/Types'
+import Dialog from '../../components/Box/Dialog';
 
 const styles = {
   root: {
@@ -38,13 +53,14 @@ const styles = {
     color: "#fff"
   },
   input: {
-    color: "#1976D2"
+    color: "#1430f0"
   }
 };
 
 class AddMovie extends Component {
   constructor(props) {
     super(props)
+    this.ref = null
     this.state = {
       uploadedFilmes: [],
       uploadeDrop: [],
@@ -61,7 +77,15 @@ class AddMovie extends Component {
       capa: '',
       backdrop: '',
       url: '',
-      idMovie: '',
+      modalVisible: false,
+      generoInput: '',
+      msgServidor: '',
+      server: [],
+      serverInput: '',
+      serverSelect: '',
+      modalVisibleServer: false,
+      returnServer: false,
+      alert: false
     };
   }
   handleChangeTitulo = (event) => {
@@ -72,6 +96,29 @@ class AddMovie extends Component {
   }
   handleChangeClassificacao = (event) => {
     this.setState({ classificacao: event.target.value })
+  }
+  handleChangeSelect = (event) => {
+    const { movie, capa, backdrop } = this.state;
+    if (movie || capa || backdrop) {
+      this.setState({ alert: true })
+      this.ref.value = this.state.serverSelect
+    } else {
+
+      this.setState({ serverSelect: event.target.value })
+    }
+  }
+
+  handleChangeServer = (event) => {
+    this.setState({ serverInput: event.target.value })
+    if (!event.target.value) {
+      this.setState({ msgServidor: '' })
+    }
+  }
+  InputGenero = (event) => {
+    this.setState({ generoInput: event.target.value })
+    if (!event.target.value) {
+      this.setState({ msgServidor: '' })
+    }
   }
 
   handleCheck(event, x) {
@@ -84,31 +131,92 @@ class AddMovie extends Component {
     }));
 
   }
-  postGenero = () => {
-    Generos.map(item => {
+  componentDidUpdate(PrevProps, prevState) {
+    const { serverInput } = prevState;
+    const serverInputAtual = this.state.serverInput
+    if (serverInput != serverInputAtual) {
+      this.setState({ msgServidor: '', returnServer: false })
+    }
+  }
+  testServer = (event) => {
+    event.preventDefault()
+
+    axios({
+      method: 'get',
+      //url: 'logout',
+      baseURL: this.state.serverInput,
+    })
+      .then(response => {
+        this.setState({ returnServer: true })
+      })
+      .catch(error => {
+        console.log(error);
+        this.setState({ msgServidor: 'Erro ao tentar fazer a requisição', returnServer: false })
+      });
+
+  }
+  postServer = (event) => {
+    event.preventDefault()
+    if (this.state.serverInput) {
+
       let bodyFormData = {
-        genero: item.label,
+        servidor: this.state.serverInput,
+      }
+      api.post("/servers/incluir", bodyFormData)
+        .then(res => {
+
+
+          if (res.data === 'Existe') {
+
+            this.setState({ msgServidor: 'Servidor Existente no Banco de Dados' })
+          }
+          this.getServer()
+
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+  }
+  getServer = () => {
+    api.get("servers")
+      .then(response => {
+        if (response.status === 200) {
+          const server = response.data;
+          this.setState({ server: server })
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+  postGenero = (event) => {
+    event.preventDefault()
+    if (this.state.generoInput) {
+
+      let bodyFormData = {
+        genero: this.state.generoInput,
       }
       api.post("/generos/incluir", bodyFormData)
         .then(res => {
-          console.log('POST Genero', res.data)
+          if (res.data === 'Existe') {
+
+            this.setState({ msgServidor: 'Gênero Existente no Banco de Dados' })
+          }
+          this.getGenero()
         })
         .catch(err => {
-          window.alert(err)
+          console.log(err)
         })
-    })
-    setTimeout(this.getGenero(), 3000)
-
+    }
   }
+
 
   getGenero = () => {
     api.get("generos")
       .then(response => {
         if (response.status === 200) {
           const generos = response.data;
-          if (generos.length < Generos.length) {
-            this.postGenero()
-          }
           this.setState({ generos: generos })
         }
       })
@@ -119,14 +227,15 @@ class AddMovie extends Component {
 
   componentDidMount() {
     this.getGenero()
+    this.getServer()
   }
   handleUpload = (files, name) => {
 
-
+    var fileExt = files[0].name.split('.').pop();
     const uploadedFiles = files.map(file => ({
       file,
       id: uniqueId(),
-      name: file.name,
+      name: this.state.titulo ? this.state.titulo + '.' + fileExt : file.name,
       readableSize: filesize(file.size),
       preview: URL.createObjectURL(file),
       progress: 0,
@@ -212,16 +321,19 @@ class AddMovie extends Component {
 
     data.append(name, uploadedFile.file, uploadedFile.name);
 
-    api
-      .post("/movie/incluirFiles", data, {
-        onUploadProgress: e => {
-          const progress = parseInt(Math.round((e.loaded * 100) / e.total));
+    axios({
+      method: 'post',
+      url: '/movie/incluirFiles',
+      baseURL: this.state.serverSelect,
+      data: data,
+      onUploadProgress: e => {
+        const progress = parseInt(Math.round((e.loaded * 100) / e.total));
 
-          this.updateFile(name, uploadedFile.id, {
-            progress
-          });
-        }
-      })
+        this.updateFile(name, uploadedFile.id, {
+          progress
+        });
+      }
+    })
       .then(response => {
 
         this.updateFile(name, uploadedFile.id, {
@@ -356,6 +468,7 @@ class AddMovie extends Component {
         .then(result => {
           if (result.status) {
             console.log('fORMULARIO ENVIADO')
+            this.props.alert.success('fORMULARIO ENVIADO')
             //this.setState({ redirect: true, isLoading: false })
           }
         })
@@ -370,9 +483,10 @@ class AddMovie extends Component {
       this.setState({ isLoading: false })
     }
   };
+
   render() {
 
-    const { generoSelect, uploadedCapa, uploadedFilmes, uploadeDrop, isLoading, titulo, sinopse, ano, generos, classificacao } = this.state;
+    const { generoSelect, uploadedCapa, uploadedFilmes, uploadeDrop, isLoading, titulo, sinopse, ano, generos, classificacao, capa, movie, backdrop } = this.state;
     return (
       <div>
         <Header />
@@ -395,8 +509,81 @@ class AddMovie extends Component {
                 <div className="submit-form">
 
                   <form className="col-md-12" onSubmit={this.handleSubmit} style={{ padding: 30 }}>
+                    <Dialog isOpen={this.state.alert}
+                      backgroundColor={'#d1c299'}
+                      onClose={(e) => this.setState({ alert: false })}
+                    >
+                      <div className="row">
+                        <div className="col-sm-4">
+                          <Warning src={process.env.PUBLIC_URL + "/icons8-warning-64.png"} width={50} />
+                        </div>
+                        <div className="col-sm-8">
+
+                          <Title >Atenção! Esta ação irá comprometer seus dados.</Title>
+                        </div>
+                      </div>
+                      <Divider light />
+                      <Title> Pode ocorrer o que os programadores chamam de a "Disjunção do Dados".</Title>
+                      <Title>Cancele o upload para trocar de Servidor .</Title>
+                      <Divider light />
+                    </Dialog>
                     <div className="form-group">
                       <div className="form-row">
+                        <Title color={'#fff'}>Selecione um Servidor</Title>
+                        <div className="row">
+
+                          <div className="col-md-4">
+
+                            <Select
+                              ref={(ref) => this.ref = ref}
+                              onChange={(event) => this.handleChangeSelect(event)}
+                              placeholder="Selecione um servidor"
+                            //disabled={capa || movie || backdrop ? true : false}
+
+                            >
+
+                              <option value="">-------</option>
+                              {this.state.server.map(server => <option value={server.servidor}>{server.servidor}</option>)}
+                            </Select>
+
+                          </div>
+                          <div className="col-md-8">
+                            {this.state.modalVisibleServer ?
+                              <ModalCustomizad
+                                display={this.state.modalVisibleServer}
+                                onRequestClose={() => this.setState({ modalVisibleServer: false })}
+                              >
+                                <Container>
+
+                                  <div className="form-row">
+                                    <div className="col-md-2">
+                                      <Label color={'#fff'}>Servidor: </Label>
+
+                                    </div>
+                                    <div className="col-md-4">
+
+                                      <Input color={'#fff'} type="text" onChange={this.handleChangeServer} value={this.state.serverInput} backgroundColor={'#111'} marginRight={10}></Input>
+                                      {this.state.msgServidor ? <HelperText color={'#d00'}>{this.state.msgServidor}</HelperText> : null}
+                                    </div>
+                                    <div className="col-md-6">
+                                      <Botao disable={this.state.serverInput ? false : true} disabled={this.state.serverInput ? false : true} backgroundColor={this.state.msgServidor ? '#d00' : false} onClick={(event) => this.testServer(event)}>Testar</Botao>
+                                      <Botao disable={!this.state.returnServer} disabled={!this.state.returnServer} onClick={(event) => this.postServer(event)} backgroundColor={this.state.returnServer ? '#00af14' : false}>Salvar</Botao>
+
+                                    </div>
+                                  </div>
+                                </Container>
+                              </ModalCustomizad>
+                              :
+                              <Botao onClick={() => this.setState({ modalVisibleServer: !this.state.modalVisibleServer })}>Cadastrar Servidor</Botao>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <div className="form-row">
+
                         <div className="col-md-12">
                           <TextField
                             required
@@ -425,6 +612,7 @@ class AddMovie extends Component {
                       <div className="form-row">
                         <div className="col-md-12">
                           <Typography>Gêneros</Typography>
+
                           {generos && generos.map((item, index) => (
                             <FormControl component="fieldset">
 
@@ -444,6 +632,39 @@ class AddMovie extends Component {
                             </FormControl>
                           ))}
                         </div>
+
+                      </div>
+                    </div>
+                    <div className="form-row" style={{ alignItems: 'center' }}>
+                      <div className="col-md-3">
+                        <Botao onClick={() => this.setState({ modalVisible: !this.state.modalVisible })}>Cadastrar Gênero</Botao>
+
+                      </div>
+                      <div className="col-md-9">
+
+                        <ModalCustomizad
+                          display={this.state.modalVisible}
+                          onRequestClose={() => this.setState({ modalVisible: false })}
+                        >
+                          <Container>
+
+                            <div className="form-row">
+                              <div className="col-md-2">
+                                <Label color={'#fff'}>Gênero: </Label>
+
+                              </div>
+                              <div className="col-md-4">
+
+                                <Input color={'#fff'} type="text" onChange={this.InputGenero} backgroundColor={'#111'}></Input>
+                                {this.state.msgServidor ? <HelperText color={'#d00'}>{this.state.msgServidor}</HelperText> : null}
+                              </div>
+                              <div className="col-md-6">
+
+                                <Botao onClick={(event) => this.postGenero(event)}>Salvar</Botao>
+                              </div>
+                            </div>
+                          </Container>
+                        </ModalCustomizad>
                       </div>
                     </div>
                     <div className="form-group">
@@ -539,7 +760,9 @@ class AddMovie extends Component {
                           {!!uploadedCapa.length ? (
                             <FileList files={uploadedCapa} name={Types.capa} onDelete={this.handleDelete} />
                           ) :
-                            <Upload onUpload={(files) => { this.handleUpload(files, Types.capa) }} accept="image/*" />
+                            this.state.serverSelect ? (
+                              <Upload onUpload={(files) => { this.handleUpload(files, Types.capa) }} accept="image/*" />)
+                              : <Title color={'gray'}>Preencha os campos anterior</Title>
                           }
 
                         </div>
@@ -555,7 +778,9 @@ class AddMovie extends Component {
                           {!!uploadeDrop.length ? (
                             <FileList files={uploadeDrop} name={Types.backdrop} onDelete={this.handleDelete} />
                           ) :
-                            <Upload onUpload={(files) => { this.handleUpload(files, Types.backdrop) }} accept="image/*" />
+                            this.state.serverSelect ?
+                              <Upload onUpload={(files) => { this.handleUpload(files, Types.backdrop) }} accept="image/*" />
+                              : <Title color={'gray'}>Preencha os campos anterior</Title>
                           }
 
                         </div>
@@ -572,7 +797,9 @@ class AddMovie extends Component {
                           {!!uploadedFilmes.length ? (
                             <FileList files={uploadedFilmes} name={Types.movie} onDelete={this.handleDelete} />
                           ) :
-                            <Upload onUpload={(files) => { this.handleUpload(files, Types.movie) }} accept="video/*" />
+                            this.state.serverSelect ?
+                              <Upload onUpload={(files) => { this.handleUpload(files, Types.movie) }} accept="video/*" />
+                              : <Title color={'gray'}>Preencha os campos anterior</Title>
                           }
 
                         </div>

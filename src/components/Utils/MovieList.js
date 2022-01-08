@@ -12,7 +12,7 @@ const API_BASE = process.env.REACT_APP_PUBLIC_URL;
 */
 
 const basicFetch = async (endpoint) => {
-    
+
     const req = await fetch(`${API_BASE}${endpoint}`);
     const json = await req.json();
     return json;
@@ -59,48 +59,48 @@ export const MovieList = {
             }*/
         ]
     },
-        getMovieInfo: async (id, type) => {
-            let info = {};
-            
-            if (id) {
-                switch (type) {
-                    case 'movie':
-                        info = await basicFetch(`/movie/${id}`);
-                        break;
-                    case 'tv':
-                        info = await basicFetch(`/tv/${id}`);
-                        break;
-                    case 'serie':
-                        info = await basicFetch(`/serie/${id}`);
-                        break;
-                    default:
-                        info = null;
-                        break;
-                }
-            }
-            return info;
-        },
-            getTrailerVideo: async (Id, type) => {
-                let trailer = {};
+    getMovieInfo: async (id, type) => {
+        let info = {};
 
-                if (Id) {
-                    switch (type) {
-                        case 'movie':
-                            trailer = await basicFetch(`/movie/${Id}`);
-                            break;
-                        case 'tv':
-                            trailer = await basicFetch(`/tv/${Id}`);
-                            break;
-                        case 'serie':
-                            trailer = await basicFetch(`/tv/${Id}`);
-                            break;
-                        default:
-                            trailer = null;
-                            break;
-                    }
-                }
-                return trailer;
-            },
+        if (id) {
+            switch (type) {
+                case 'movie':
+                    info = await basicFetch(`/movie/${id}`);
+                    break;
+                case 'tv':
+                    info = await basicFetch(`/tv/${id}`);
+                    break;
+                case 'serie':
+                    info = await basicFetch(`/serie/${id}`);
+                    break;
+                default:
+                    info = null;
+                    break;
+            }
+        }
+        return info;
+    },
+    getTrailerVideo: async (Id, type) => {
+        let trailer = {};
+
+        if (Id) {
+            switch (type) {
+                case 'movie':
+                    trailer = await basicFetch(`/movie/${Id}`);
+                    break;
+                case 'tv':
+                    trailer = await basicFetch(`/tv/${Id}`);
+                    break;
+                case 'serie':
+                    trailer = await basicFetch(`/tv/${Id}`);
+                    break;
+                default:
+                    trailer = null;
+                    break;
+            }
+        }
+        return trailer;
+    },
 }
 
 export default MovieList
