@@ -19,45 +19,52 @@ const basicFetch = async (endpoint) => {
 }
 
 export const MovieList = {
+    getAllByFilter: async (text) => {
+
+        return await basicFetch(`/getall/${text}`)
+    },
     getHomeList: async () => {
-        return [
+        const list = [
             {
                 slug: 'toprated',
                 title: 'Adicionados recetemente',
                 type: 'movie',
                 items: await basicFetch(`/recente/movie/`)
-            }/*
+            },
             {
-                slug: 'action',
+                slug: 'acao',
                 title: 'Ação',
                 type: 'movie',
-                items: await basicFetch(`/genero/movie/${'acao'}`)
+                items: await basicFetch(`/genero/movie/${'Ação'}`)
             },
             {
-                slug: 'comedy',
-                title: 'Comédia',
+                slug: 'aventura',
+                title: 'Aventura',
                 type: 'movie',
-                items: await basicFetch(`/genero/movie/${'comedia'}`)
+                items: await basicFetch(`/genero/movie/${'Aventura'}`)
             },
             {
-                slug: 'horror',
-                title: 'Terror',
+                slug: 'fantasia',
+                title: 'Fantasia',
                 type: 'movie',
-                items: await basicFetch(`/genero/movie/${'terror'}`)
+                items: await basicFetch(`/genero/movie/${'Fantasia'}`)
             },
             {
-                slug: 'romance',
-                title: 'Romance',
+                slug: 'baseadohistoriareal',
+                title: 'Baseado em Historia Real',
                 type: 'movie',
-                items: await basicFetch(`/genero/movie/${'romance'}`)
+                items: await basicFetch(`/genero/movie/${'Baseado em Historia Real'}`)
             },
             {
-                slug: 'documentary',
-                title: 'Documentários',
+                slug: 'faroeste',
+                title: 'Faroeste',
                 type: 'movie',
-                items: await basicFetch(`/genero/movie/${'documentario'}`)
-            }*/
+                items: await basicFetch(`/genero/movie/${'Faroeste'}`)
+            }
         ]
+
+        const listfilter = list.filter(item => item.items.length > 0)
+        return listfilter
     },
     getMovieInfo: async (id, type) => {
         let info = {};
@@ -74,10 +81,11 @@ export const MovieList = {
                     info = await basicFetch(`/serie/${id}`);
                     break;
                 default:
-                    info = null;
+                    info = await basicFetch(`/movie/${id}`);
                     break;
             }
         }
+
         return info;
     },
     getTrailerVideo: async (Id, type) => {

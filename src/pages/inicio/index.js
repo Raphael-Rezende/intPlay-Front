@@ -1,24 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
 import MovieList from '../../components/Utils/MovieList';
-import MovieRow from '../../components/MovieRow/index';
 import FeaturedMovie from '../../components/FeaturedMovie/index';
 import Header from '../../components/Header/index';
 import Slider from '../../components/NetflixSlider'
+import SearchContext from '../../components/Search/context';
+import Search from '../../components/Search/index'
+
 
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default () => {
 
   const [movieList, setMovieList] = useState([]);
+  const [movieFilter, setmovieFilter] = useState(null);
   const [featuredData, setFeaturedData] = useState(null);
   const [movieType, setmovieType] = useState(null);
   const [blackHeader, setblackHeader] = useState(false);
   const [dashVisible, setdashVisible] = useState(false);
+  const context = useContext(SearchContext)
+
+
+
+  const fetchData = useCallback(async () => {
+    if (context.searchInput.length > 2) {
+
+      const filterList = await MovieList.getAllByFilter(context.searchInput)
+      if (filterList.length > 0) {
+        setmovieFilter(filterList)
+      }
+    }
+
+  }, [context]);
+
+  const onClose = () => {
+    console.log('close')
+    context.updateSearchInput('');
+  }
+
+
 
   useEffect(() => {
+
     const loadAll = async () => {
       //
       let list = await MovieList.getHomeList();
@@ -39,7 +64,18 @@ export default () => {
     }
 
     loadAll();
-  }, []);
+    fetchData();
+
+    return () => {
+      setmovieType(null)
+      setFeaturedData(null)
+      setmovieFilter(null)
+      setMovieList([])
+    }
+
+
+
+  }, [fetchData]);
 
 
   useEffect(() => {
@@ -71,18 +107,46 @@ export default () => {
     return () => {
       window.removeEventListener('scroll', scrollListener);
       window.removeEventListener('keydown', cadastrar);
+      setblackHeader(false)
+      setdashVisible(false)
     }
   }, []);
 
+
+
   return (
+
     <div className="page">
 
       <Header dash={dashVisible} button={<li className="ml-auto">   <Link className="btn btn-sm btn-info" to={{ pathname: '/dashboard' }}>Cadastrar</Link></li>} black={blackHeader} />
 
-      {featuredData &&
-        <div>
-          <FeaturedMovie item={featuredData} type={movieType} />
-        </div>
+      {
+        movieFilter ?
+          <Search movies={movieFilter} type={"search"} onClose={onClose} />
+          :
+          <div>
+            {featuredData &&
+              <div>
+                <FeaturedMovie item={featuredData} type={movieType} />
+              </div>
+            }
+
+            <section className="lists">
+
+              {
+                movieList.map((item, key) => (
+                  <div>
+                    <div><h3>{item.title}</h3></div>
+                    <Slider key={key} type={item.type}>
+                      {item.items.map((movie, keyi) => (
+                        <Slider.Item key={key} movie={movie}>{movie.titulo}</Slider.Item>
+                      ))}
+                    </Slider>
+                  </div>
+                ))
+              }
+            </section>
+          </div>
       }
 
       <section className="lists">
@@ -99,8 +163,6 @@ export default () => {
       <footer>
         Aproveitem
       </footer>
-
-
       {movieList.length <= 0 ?
         <div className="loading">
           <img src={process.env.PUBLIC_URL + "/loading.gif"} alt="loading"></img>

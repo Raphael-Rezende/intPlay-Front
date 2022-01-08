@@ -1,6 +1,6 @@
 
 
-import React, { Component } from 'react';
+import React, { Component, UseContext } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 
@@ -10,15 +10,17 @@ import AddMovie from "./pages/movie/add";
 import IndexMovie from "./pages/movie/index";
 import Dashboard from "./pages/dashboard";
 import Details from "./pages/Details"
+import { useSearch } from "./hooks/useSearch"
+import SearchContext from "./components/Search/context"
 
 
+const App = () => {
 
 
-class App extends Component {
-
-    render() {
-        return (
-            <div className="App">
+    const searchText = useSearch()
+    return (
+        <div className="App">
+            <SearchContext.Provider value={searchText}>
                 <Router>
                     <Switch>
                         <Route exact path='/' component={Index} />
@@ -30,9 +32,10 @@ class App extends Component {
                         {/*<PrivateRoute perfil="1" path='/usuarios' component={IndexUser} />*/}
                     </Switch>
                 </Router>
-            </div>
-        );
-    }
+            </SearchContext.Provider>
+        </div>
+    );
+
 }
 
 export default App;

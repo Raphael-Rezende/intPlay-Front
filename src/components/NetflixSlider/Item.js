@@ -13,9 +13,11 @@ const Item = ({ movie }) => (
       return (
         <div
           ref={elementRef}
+          style={{cursor: 'pointer'}}
           className={cx('item', {
             'item--open': isActive,
           })}
+          onClick={() => onSelectSlide(movie)}
         >
           <img src={process.env.REACT_APP_PUBLIC_URL + movie.capa} alt="" />
           <ShowDetailsButton onClick={() => onSelectSlide(movie)} />

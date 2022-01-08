@@ -19,7 +19,7 @@ const Content = ({ movie, onClose, type }) => {
         <div className="featured--horizontal">
           <div className="featured--name">{movie.titulo}</div>
           <div className="featured--info">
-            <div className="featured--year">{getDataStringFormat(movie.ano,'yyyy')}</div>
+            <div className="featured--year">{getDataStringFormat(movie.ano, 'yyyy')}</div>
             {/*<div className="featured--seasons">{item.number_of_seasons} temporada{item.number_of_season !== 1 ? 's' : ''}</div>*/}
           </div>
           <div className="featured--description">{movie.sinopse}</div>
@@ -28,7 +28,12 @@ const Content = ({ movie, onClose, type }) => {
           </div>
           <div className="featured--genres">Gêneros: <strong> {genres.join(', ')} </strong></div>
           <button className="featured--close" onClick={onClose}>
-
+            <img
+              style={{ width: "30px" }}
+              src={"./close.png"}
+              alt="close icon"
+              onClick={onClose}
+            />
           </button>
         </div>
       </div>
