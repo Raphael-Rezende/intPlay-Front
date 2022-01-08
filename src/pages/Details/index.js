@@ -51,7 +51,7 @@ function Details() {
             <section>
                 <div>
                     <div className="details--info">
-                        <h3 className={movieDetails.classificacao < 16 ? 'positive' : 'negative'}>{movieDetails.classificacao}</h3>
+                        <h3 className={movieDetails.classificacao < 16 ? 'positive' : 'negative'}>{movieDetails.classificacao > 0 ? movieDetails.classificacao : "L" }</h3>
                     </div>
 
                     <h1>{movieDetails.titulo}</h1>

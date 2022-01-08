@@ -18,7 +18,7 @@ const Item = ({ movie }) => (
           })}
         >
           <img src={process.env.REACT_APP_PUBLIC_URL + movie.capa} alt="" />
-          <ShowDetailsButton style={{position: 'absolute', bottom: 100}} onClick={() => onSelectSlide(movie)} />
+          <ShowDetailsButton onClick={() => onSelectSlide(movie)} />
           {isActive && <Mark />}
         </div>
       );

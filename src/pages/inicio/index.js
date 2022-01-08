@@ -14,6 +14,7 @@ export default () => {
 
   const [movieList, setMovieList] = useState([]);
   const [featuredData, setFeaturedData] = useState(null);
+  const [movieType, setmovieType] = useState(null);
   const [blackHeader, setblackHeader] = useState(false);
   const [dashVisible, setdashVisible] = useState(false);
 
@@ -24,11 +25,16 @@ export default () => {
       setMovieList(list);
 
       let originals = list.filter(i => i.slug === 'toprated');
-      let randomChosen = Math.floor(Math.random() * (originals[0].items.length - 1));
-      let movieChosen = originals[0].items[randomChosen];
+      if(originals.length > 0) {
 
-      let movieChosenData = movieChosen;
-      setFeaturedData(movieChosenData);
+        let randomChosen = Math.floor(Math.random() * (originals[0].items.length - 1));
+        let movieChosen = originals[0].items[randomChosen];
+        let movieType = originals[0].type;
+        
+        let movieChosenData = movieChosen;
+        setmovieType(movieType)
+        setFeaturedData(movieChosenData);
+      }
     }
 
     loadAll();
@@ -74,13 +80,13 @@ export default () => {
 
       {featuredData &&
         <div>
-          <FeaturedMovie item={featuredData} />
+          <FeaturedMovie item={featuredData} type={movieType} />
         </div>
       }
 
       <section className="lists">
         {movieList.map((item, key) => (
-          <Slider>
+          <Slider type={item.type}>
             {item.items.map(movie => (
               <Slider.Item movie={movie} key={movie.id}>{movie.titulo}</Slider.Item>
             ))}

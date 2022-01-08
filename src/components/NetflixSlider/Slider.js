@@ -8,7 +8,7 @@ import useSliding from './useSliding'
 import useSizeElement from './useSizeElement'
 import './Slider.scss'
 
-const Slider = ({ children, activeSlide }) => {
+const Slider = ({ children, activeSlide, type }) => {
   const [currentSlide, setCurrentSlide] = useState(activeSlide);
   const { width, elementRef } = useSizeElement();
   const {
@@ -46,7 +46,7 @@ const Slider = ({ children, activeSlide }) => {
         {hasPrev && <SlideButton onClick={handlePrev} type="prev" />}
         {hasNext && <SlideButton onClick={handleNext} type="next" />}
       </SliderWrapper>
-      {currentSlide && <Content movie={currentSlide} onClose={handleClose} />}
+      {currentSlide && <Content movie={currentSlide} onClose={handleClose} type={type} />}
     </SliderContext.Provider>
   );
 };

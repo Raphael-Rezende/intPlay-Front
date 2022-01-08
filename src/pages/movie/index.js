@@ -15,6 +15,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
 import Box from '@mui/material/Box';
+import { getDataStringFormat } from '../../components/Utils/DateTimeUtil';
 
 
  class index extends Component {
@@ -138,7 +139,7 @@ import Box from '@mui/material/Box';
                                                 <AccordionDetails>
                                                     <div className="col-sm-4">
 
-                                                        <Typography>{item.ano}</Typography>
+                                                        <Typography>{getDataStringFormat(item.ano,'yyyy')}</Typography>
                                                     </div>
                                                     <div className="col-sm-4">
 

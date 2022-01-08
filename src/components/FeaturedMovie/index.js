@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { getDataStringFormat} from '../Utils/DateTimeUtil'
 import './styles.css';
 
 // eslint-disable-next-line import/no-anonymous-default-export
-export default ({ item }) => {
+export default ({ item, type }) => {
 
     const [movieBackDrop, setmovieBackDrop] = useState({});
 
@@ -34,13 +35,12 @@ export default ({ item }) => {
                 <div className="featured--horizontal">
                     <div className="featured--name">{item.titulo}</div>
                     <div className="featured--info">
-                        <div className="featured--year">{item.ano}</div>
+                        <div className="featured--year">{getDataStringFormat(item.ano,'yyyy')}</div>
                         {/*<div className="featured--seasons">{item.number_of_seasons} temporada{item.number_of_season !== 1 ? 's' : ''}</div>*/}
                     </div>
                     <div className="featured--description">{descr}</div>
                     <div className="featured--buttons">
-                        <a href={`/watch/${item._id}`} className="featured--watchbutton">► Assistir</a>
-                        <a href={`/list/add/${item._id}`} className="featured--mylistbutton">+ Minha Lista</a>
+                        <a href={`/details/${type}/${item._id}`} className="featured--watchbutton">► Assistir</a>
                     </div>
                     <div className="featured--genres">Gêneros: <strong> {genres.join(', ')} </strong></div>
 
