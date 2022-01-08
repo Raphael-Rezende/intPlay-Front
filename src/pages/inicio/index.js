@@ -6,6 +6,7 @@ import MovieList from '../../components/Utils/MovieList';
 import MovieRow from '../../components/MovieRow/index';
 import FeaturedMovie from '../../components/FeaturedMovie/index';
 import Header from '../../components/Header/index';
+import Slider from '../../components/NetflixSlider'
 
 
 // eslint-disable-next-line import/no-anonymous-default-export
@@ -79,7 +80,11 @@ export default () => {
 
       <section className="lists">
         {movieList.map((item, key) => (
-          <MovieRow key={key} title={item.title} type={item.type} items={item.items}></MovieRow>
+          <Slider>
+            {item.items.map(movie => (
+              <Slider.Item movie={movie} key={movie.id}>{movie.titulo}</Slider.Item>
+            ))}
+          </Slider>
         ))
 
         }
