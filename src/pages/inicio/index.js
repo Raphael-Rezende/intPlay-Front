@@ -130,36 +130,30 @@ export default () => {
                 <FeaturedMovie item={featuredData} type={movieType} />
               </div>
             }
+            <di>
 
-            <section className="lists">
+              <section style={{ marginTop: '50px' }} className="lists">
+                {movieList.length > 0 && movieList.map((item, key) => (
+                  <di>
 
-              {
-                movieList.map((item, key) => (
-                  <div>
-                    <div><h3>{item.title}</h3></div>
-                    <Slider key={key} type={item.type}>
-                      {item.items.map((movie, keyi) => (
-                        <Slider.Item key={key} movie={movie}>{movie.titulo}</Slider.Item>
+                    <div ><h1>{item.title}</h1></div>
+                    <Slider type={item.type}>
+                      {item.items.map(movie => (
+                        <Slider.Item movie={movie} key={movie.id}>{movie.titulo}</Slider.Item>
                       ))}
                     </Slider>
-                  </div>
+                  </di>
                 ))
-              }
-            </section>
+
+                }
+              </section>
+
+            </di>
+
           </div>
       }
 
-      <section className="lists">
-        {movieList.length > 0 && movieList.map((item, key) => (
-          <Slider type={item.type}>
-            {item.items.map(movie => (
-              <Slider.Item movie={movie} key={movie.id}>{movie.titulo}</Slider.Item>
-            ))}
-          </Slider>
-        ))
 
-        }
-      </section>
       <footer>
         Aproveitem
       </footer>
