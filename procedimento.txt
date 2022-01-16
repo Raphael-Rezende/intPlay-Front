@@ -1,0 +1,19 @@
+
+https://github.com/Raphael-Rezende/IntPlay-API.git
+
+https://github.com/Raphael-Rezende/intPlay-Front.git
+
+
+pm2 reactjs https://www.loginradius.com/blog/async/react-app-deployment/
+
+https://stackoverflow.com/questions/42758985/windows-auto-start-pm2-and-node-apps
+
+criar pasta tmp>uploads>capa && backdrop && movie
+
+pm2 start src\server.js --name server
+
+
+npm run build 
+
+pm2 serve build 80 --spa --name intplay
+
