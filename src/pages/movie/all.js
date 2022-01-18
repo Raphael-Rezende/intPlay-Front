@@ -1,11 +1,8 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
 import MovieList from '../../components/Utils/MovieList';
-import FeaturedMovie from '../../components/FeaturedMovie/index';
 import Header from '../../components/Header/index';
-import Slider from '../../components/NetflixSlider'
 import SearchContext from '../../components/Search/context';
 import Search from '../../components/Search/index'
 
@@ -14,10 +11,8 @@ import Search from '../../components/Search/index'
 // eslint-disable-next-line import/no-anonymous-default-export
 export default () => {
 
-  const [movieList, setMovieList] = useState([]);
+  const [movieList, setMovieList] = useState(null);
   const [movieFilter, setmovieFilter] = useState(null);
-  const [featuredData, setFeaturedData] = useState(null);
-  const [movieType, setmovieType] = useState(null);
   const [blackHeader, setblackHeader] = useState(false);
   const [dashVisible, setdashVisible] = useState(false);
   const context = useContext(SearchContext)
@@ -35,10 +30,7 @@ export default () => {
 
   }, [context]);
 
-  const onClose = () => {
-    console.log('close')
-    context.updateSearchInput('');
-  }
+
 
 
 
@@ -46,29 +38,15 @@ export default () => {
 
     const loadAll = async () => {
       //
-      let list = await MovieList.getHomeList();
-      console.log(list)
+      const list = await MovieList.getAllByFilter('xx')
+      console.log('lista',list)
       setMovieList(list);
-
-      let originals = list.filter(i => i.slug === 'toprated');
-      if (originals.length > 0) {
-
-        let randomChosen = Math.floor(Math.random() * (originals[0].items.length - 1));
-        let movieChosen = originals[0].items[randomChosen];
-        let movieType = originals[0].type;
-
-        let movieChosenData = movieChosen;
-        setmovieType(movieType)
-        setFeaturedData(movieChosenData);
-      }
     }
 
     loadAll();
     fetchData();
 
     return () => {
-      setmovieType(null)
-      setFeaturedData(null)
       setmovieFilter(null)
       setMovieList([])
     }
@@ -76,6 +54,23 @@ export default () => {
 
 
   }, [fetchData]);
+
+  const showCatalago = (filter, list) => {
+
+    if (filter == null) {
+      if (list !== null) {        
+          return <Search movies={list} type={"search"} />
+        }  
+      return null
+    } else {
+      if (filter.length > 0) {
+        return <Search movies={filter} type={"search"} />
+      } else {
+        return <Search movies={list} type={"search"} />
+      }
+    }
+
+  }
 
 
   useEffect(() => {
@@ -101,6 +96,8 @@ export default () => {
 
     }
 
+
+
     window.addEventListener('scroll', scrollListener);
     window.addEventListener('keydown', cadastrar);
 
@@ -120,46 +117,15 @@ export default () => {
 
       <Header dash={dashVisible} button={<li className="ml-auto">   <Link className="btn btn-sm btn-info" to={{ pathname: '/dashboard' }}>Cadastrar</Link></li>} black={blackHeader} />
 
-      {
-        movieFilter ?
-          <Search movies={movieFilter} type={"search"} />
-          :
-          <div>
-            {featuredData &&
-              <div>
-                <FeaturedMovie item={featuredData} type={movieType} />
-              </div>
-            }
-            <di>
-
-              <section style={{ marginTop: '50px' }} className="lists">
-                {movieList.length > 0 && movieList.map((item, key) => (
-                  <di>
-
-                    <div ><h1>{item.title}</h1></div>
-                    <Slider type={item.type}>
-                      {item.items.map(movie => (
-                        <Slider.Item movie={movie} key={movie.id}>{movie.titulo}</Slider.Item>
-                      ))}
-                    </Slider>
-                  </di>
-                ))
-
-                }
-              </section>
-
-            </di>
-
-          </div>
-      }
+      {showCatalago(movieFilter, movieList)}
 
 
       <footer>
         Aproveitem
       </footer>
-      {movieList.length <= 0 ?
+      {movieList == null ?
         <div className="loading">
-          <img src={process.env.PUBLIC_URL + "/loading.gif"} alt="loading"></img>
+          <img src={"/loading.gif"} alt="loading"></img>
         </div>
         : null
       }

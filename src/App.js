@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 
 import Index from "./pages/inicio/index";
+import All from "./pages/movie/all";
 import Login from "./pages/login/index";
 import AddMovie from "./pages/movie/add";
 import IndexMovie from "./pages/movie/index";
@@ -24,6 +25,7 @@ const App = () => {
                 <Router>
                     <Switch>
                         <Route exact path='/' component={Index} />
+                        <Route exact path='/movies' component={All} />
                         <Route path='/login' component={Login} />
                         <Route path='/movie/add' component={AddMovie} />
                         <Route path='/movie' component={IndexMovie} />

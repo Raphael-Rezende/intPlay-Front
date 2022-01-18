@@ -2,7 +2,7 @@ import React, { useEffect, useContext } from "react"
 import "./search.css"
 import SearchContext from "./context"
 
-const Search = ({ movies, type }) => {
+const Search = ({ movies, type, onClose }) => {
 
     const { updateSearchInput } = useContext(SearchContext)
 
@@ -32,19 +32,21 @@ const Search = ({ movies, type }) => {
                     {movies.length ? (
                         <React.Fragment>
                             <div className="search-container">{renderPosters(movies)}
-                                <button className="featured--close"
-                                    onClick={() => {
-                                        console.log('clicou limpar')
-                                        return updateSearchInput('')
-                                    }}
-                                >
-                                    <img
-                                        style={{ width: "30px" }}
-                                        src={"./close.png"}
-                                        alt="close icon"
-                                        onClick={() => console.log('clicou limpar')}
-                                    />
-                                </button>
+                                {onClose &&
+                                    <button className="featured--close"
+                                        onClick={() => {
+                                            console.log('clicou limpar')
+                                            return updateSearchInput('')
+                                        }}
+                                    >
+                                        <img
+                                            style={{ width: "30px" }}
+                                            src={"./close.png"}
+                                            alt="close icon"
+                                            onClick={() => console.log('clicou limpar')}
+                                        />
+                                    </button>
+                                }
                             </div>
                         </React.Fragment>
 

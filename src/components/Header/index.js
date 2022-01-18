@@ -23,34 +23,42 @@ export default (props) => {
     }
 
     return (
-            <header className={`${black ? 'pin-header' : ''}`} ref={ref}>
-                <div className="logo">
-                    <img src={process.env.PUBLIC_URL + "/logo192.png"} />
+        <header className={`${black ? 'pin-header' : ''}`} ref={ref}>
+            <div className="logo">
+                <img src={"/logo192.png"} />
+            </div>
+
+            <div className="header-menu">
+                <ul className="header-list">                   
+                    <li className="header-list-item"><a href={"/"} className="active">Inicio</a></li>
+                    <li className="header-list-item"><a href={"/movies"}>Filmes</a></li>
+                    
+                </ul>
+            </div>
+
+
+
+
+            <div className="header-options">
+                <div className={`${searchBox ? "searchBox" : "searchIcon"}`}>
+                    <span className="icon" onClick={() => toggleSearchBox()}><FontAwesomeIcon icon={faSearch} /></span>
+                    <input className="searchInput"
+                        ref={inputRef}
+                        value={searchInput}
+                        onChange={(e) => updateSearchInput(e.currentTarget.value)}
+                        onBlur={() => setSearchBox(false)}
+                        type="text" placeholder="Titulos" maxLength="80" />
+                </div>
+                <div>
+                    <span className="icon">
+                        {dash && button}
+                    </span>
                 </div>
 
 
+            </div>
 
-
-                <div className="header-options">
-                    <div className={`${searchBox ? "searchBox" : "searchIcon"}`}>
-                        <span className="icon" onClick={() => toggleSearchBox()}><FontAwesomeIcon icon={faSearch} /></span>
-                        <input className="searchInput"
-                            ref={inputRef}
-                            value={searchInput}
-                            onChange={(e) => updateSearchInput(e.currentTarget.value)}
-                            onBlur={() => setSearchBox(false)}
-                            type="text" placeholder="Titulos" maxLength="80" />
-                    </div>
-                    <div>
-                        <span className="icon">
-                            {dash && button}
-                        </span>
-                    </div>
-
-
-                </div>
-
-            </header>
+        </header>
     )
 }
 
