@@ -85,7 +85,8 @@ class AddMovie extends Component {
       serverSelect: '',
       modalVisibleServer: false,
       returnServer: false,
-      alert: false
+      alert: false,
+      serverID: ''
     };
   }
   handleChangeTitulo = (event) => {
@@ -98,13 +99,18 @@ class AddMovie extends Component {
     this.setState({ classificacao: event.target.value })
   }
   handleChangeSelect = (event) => {
+    const clickedOption = this.state.server.find(item => item._id === event.target.value);
+    console.log(clickedOption.servidor);
     const { movie, capa, backdrop } = this.state;
-    if (movie || capa || backdrop) {
-      this.setState({ alert: true })
-      this.ref.value = this.state.serverSelect
-    } else {
+    if (clickedOption) {
 
-      this.setState({ serverSelect: event.target.value })
+      if (movie || capa || backdrop) {
+        this.setState({ alert: true })
+        this.ref.value = this.state.serverSelect
+      } else {
+
+        this.setState({ serverSelect: clickedOption.servidor, serverID: event.target.value })
+      }
     }
   }
 
@@ -445,7 +451,7 @@ class AddMovie extends Component {
     try {
 
 
-      const { titulo, sinopse, ano, generoSelect, classificacao, size, duracao, capa, backdrop, url, idMovie } = this.state;
+      const { titulo, sinopse, ano, generoSelect, classificacao, size, duracao, capa, backdrop, url, serverID } = this.state;
       let bodyFormData = {
         titulo: titulo,
         capa: capa,
@@ -456,7 +462,8 @@ class AddMovie extends Component {
         duracao: duracao,
         size: size,
         classificacao: classificacao,
-        generos: generoSelect
+        generos: generoSelect,
+        servidor: serverID
       }
       /* const config = {
          headers: {
@@ -543,7 +550,7 @@ class AddMovie extends Component {
                             >
 
                               <option value="">-------</option>
-                              {this.state.server.map(server => <option value={server.servidor}>{server.servidor}</option>)}
+                              {this.state.server.map(server => <option value={server._id}>{server.servidor}</option>)}
                             </Select>
 
                           </div>

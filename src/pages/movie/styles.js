@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import Modal from 'react-modal';
+import { estilo } from '../../components/Style/Style'
+
 
 
 export const ModalStyle = styled(Modal)`
@@ -18,10 +20,12 @@ export const ModalStyle = styled(Modal)`
 export const Container = styled.div`
   background-color: ${props => props.backgroundColor ? props.backgroundColor : "#111"};
   padding: 0.25em 1em;
+  border:${props => props.border? props.border:  0 } ;
   border-radius:10px;
+  border-color: ${props => props.borderColor ? props.borderColor : estilo.corPadrao.backgroundColorSecundary};
 `;
 export const Botao = styled.button`
-  background-color: ${props => props.disable ? 'gray' : (props.backgroundColor ? props.backgroundColor : "#1430f0")};
+  background-color: ${props => props.disable ? 'gray' : (props.backgroundColor ? props.backgroundColor : estilo.corPadrao.backgroundColorSecundary)};
   color: ${props => props.color ? props.color : "#fff"};
   font-size: 1em;
   margin: 1em;

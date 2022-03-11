@@ -10,23 +10,106 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Header from "../../elements/header";
 import { TextField } from '@material-ui/core';
-import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import DatePicker from '@mui/lab/DatePicker';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { withStyles } from "@material-ui/core/styles";
+import PropTypes from "prop-types";
+
+import EasyEdit, { Types } from 'react-easy-edit';
+
+import {
+    Botao,
+    Input,
+    Label,
+    Container,
+    HelperText,
+    ModalCustomizad,
+    Title,
+    Select,
+    Warning
+} from './styles';
+
+import { estilo } from '../../components/Style/Style'
 
 import Box from '@mui/material/Box';
 import { getDataStringFormat } from '../../components/Utils/DateTimeUtil';
 
+const styles = {
+    root: {
+        background: "black"
+    },
+    cssLabel: {
+        color: "#fff"
+    },
+    input: {
+        color: "#1430f0"
+    }
+};
 
- class index extends Component {
+class index extends Component {
     constructor(props) {
         super(props)
+        this.ref = null
         this.state = {
             data: [],
             search: '',
             anchorEl: null,
-            open: false
+            open: false,
+            uploadedFilmes: [],
+            uploadeDrop: [],
+            uploadedCapa: [],
+            isLoading: false,
+            titulo: '',
+            generos: [],
+            generoSelect: [],
+            sinopse: '',
+            classificacao: '',
+            size: '',
+            duracao: '',
+            ano: '',
+            capa: '',
+            backdrop: '',
+            url: '',
+            modalVisible: false,
+            generoInput: '',
+            msgServidor: '',
+            server: [],
+            serverInput: '',
+            serverSelect: '',
+            modalVisibleServer: false,
+            returnServer: false,
+            alert: false
         }
+    }
+
+    handleChangeSelect = (event) => {
+
+        const values = event.target.value.split(',')
+
+        const { movie, capa, backdrop } = this.state;
+
+
+        if (movie || capa || backdrop) {
+            this.setState({ alert: true })
+            this.ref.value = this.state.serverSelect
+        } else {
+
+            this.setState({ serverSelect: values[1], serverID: values[0] })
+        }
+
+    }
+    getServer = () => {
+        api.get("servers")
+            .then(response => {
+                if (response.status === 200) {
+                    const server = response.data;
+                    this.setState({ server: server })
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            });
     }
     fetchData = () => {
         api.get('/movies')
@@ -42,13 +125,24 @@ import { getDataStringFormat } from '../../components/Utils/DateTimeUtil';
     }
     componentDidMount() {
         this.fetchData()
+        this.getServer()
     }
-    handleClick = (event) => {
-        this.setState({ anchorEl: event.currentTarget, open: true });
-    };
     handleClose = () => {
         this.setState({ anchorEl: null, open: false });
     };
+    displayServer = (server) => {
+        if (this.state.server.length > 0) {
+            const clickedOption = this.state.server.find(item => item._id == server);
+            if (clickedOption != undefined) {
+                console.log('CLICKED', clickedOption.servidor)
+                return clickedOption.servidor
+            }
+
+
+        }
+
+    }
+
     redirect = (route) => {
         //console.log(quest)
 
@@ -60,7 +154,15 @@ import { getDataStringFormat } from '../../components/Utils/DateTimeUtil';
 
     }
     render() {
-        const { search, data, open, anchorEl } = this.state;
+
+        const { search, data, generoSelect, uploadedCapa, uploadedFilmes, uploadeDrop, isLoading, titulo, sinopse, ano, generos, classificacao, capa, movie, backdrop } = this.state;
+        const generateOptionsList = () => {
+            return [
+              { label: "First option", value: "one" },
+              { label: "Second option", value: "two" },
+              { label: "Third option", value: "three" }
+            ];
+          };
         return (
             <div>
                 <Header />
@@ -68,8 +170,13 @@ import { getDataStringFormat } from '../../components/Utils/DateTimeUtil';
                     <div id="content-wrapper">
                         <div className="container-fluid">
 
-                            <div className="card mb-3" style={{ backgroundColor: '#111' }}>
-                                <div className="card-header" style={{ backgroundColor: '#1976D2' }}>
+                            <Container
+                                backgroundColor={estilo.corPadrao.backgroundColor}
+                                borderColor={estilo.corPadrao.backgroundColorSecundary}
+                                border={'2px solid red'}
+                            >
+                                <div className="card-header" style={{ backgroundColor: estilo.corPadrao.backgroundColor }}>
+
                                     <div className="row">
                                         <div className="col-sm-2">
                                             <i className="fas fa-table"></i>
@@ -90,64 +197,105 @@ import { getDataStringFormat } from '../../components/Utils/DateTimeUtil';
                                             />
                                         </div>
                                         <div className="col-sm-4">
-                                            <Button
-                                                id="basic-button"
-                                                aria-controls="basic-menu"
-                                                aria-haspopup="true"
-                                                aria-expanded={open ? 'true' : undefined}
-                                                style={{ color: 'white' }}
-                                                onClick={this.handleClick}
+                                            <Botao
+                                                onClick={() => this.redirect('/movie/add')}
                                             >
                                                 Cadastrar
-                                            </Button>
-                                            <Menu
-                                                id="basic-menu"
-                                                anchorEl={anchorEl}
-                                                open={open}
-                                                onClose={this.handleClose}
-                                                MenuListProps={{
-                                                    'aria-labelledby': 'basic-button',
-                                                }}
-                                            >
-                                                <MenuItem onClick={() => this.redirect('/movie/add')}>Filme</MenuItem>
-                                                <MenuItem onClick={() => this.redirect}>Serie</MenuItem>
-
-                                            </Menu>
+                                            </Botao>
                                         </div>
                                     </div>
 
                                 </div>
-                                <div>
+                                <div style={{ backgroundColor: estilo.corPadrao.backgroundColor }}>
 
-                                    <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
+                                    <Box sx={{ width: '100%', bgcolor: estilo.corPadrao.backgroundColor }}>
                                         {data.length > 0 ? data.map((item, index) => (
 
                                             <Accordion
-                                                style={{ backgroundColor: 'black', color: 'white' }}
+                                                style={{
+                                                    backgroundColor: estilo.corPadrao.backgroundColor,
+                                                    color: 'white',
+                                                    borderTop: '2px solid blue',
+                                                    borderTopColor: estilo.corPadrao.backgroundColorSecundary
+                                                }}
                                             >
                                                 <AccordionSummary
                                                     expandIcon={<ExpandMoreIcon style={{ color: 'white' }} />}
                                                     aria-controls="panel1a-content"
                                                     id="panel1a-header"
+                                                    style={{ display: 'flex' }}
 
                                                 >
-                                                    <Typography style={{ color: 'white' }}>{item.titulo}</Typography>
+                                                    <Title fontSize="1.2em" color={'white'}>{item.titulo}</Title>
                                                 </AccordionSummary>
                                                 <AccordionDetails>
-                                                    <Typography>{item.sinopse}</Typography>
+                                                    <div className="row" style={{ alignItems: 'center' }}>
+                                                        <div className="col-sm-1">
+                                                            <Title fontSize="1.1em" color={'white'}>Servidor: </Title>
+                                                        </div>
+                                                        <div className="col-sm-8">
+                                                            <EasyEdit
+                                                                type={Types.SELECT}
+                                                                value={this.state.serverSelect?this.state.serverSelect: this.displayServer(item.servidor)}
+                                                                options={generateOptionsList()}
+                                                                displayComponent={<Title  fontSize="1.1em" color="white">{this.state.serverSelect ? this.state.serverSelect : this.displayServer(item.servidor)}</Title>}
+                                                                attributes={{ name: "awesome-input",style:{backgroundColor: estilo.corPadrao.backgroundColor, width:'100%'} }}
+                                                                onSave={(val) => this.save(val)}
+                                                                onCancel={this.cancel}
+                                                                saveButtonLabel="Salvar"
+                                                                cancelButtonLabel="Cancelar"
+
+                                                            />
+
+                                                        </div>
+
+
+                                                    </div>
                                                 </AccordionDetails>
                                                 <AccordionDetails>
-                                                    <div className="col-sm-4">
+                                                    <div className="row" style={{ alignItems: 'center' }}>
+                                                        <div className="col-sm-1">
+                                                            <Title fontSize="1.1em" color={'white'}>Sinopse: </Title>
+                                                        </div>
+                                                        <div className="col-sm-8">
+                                                            <EasyEdit
+                                                                type={Types.TEXTAREA}
+                                                                value={item.sinopse}
+                                                                displayComponent={<Title fontSize="1.1em" color="white">{item.sinopse}</Title>}
+                                                                editComponent={<Input type="textarea" color="white" backgroundColor={estilo.corPadrao.backgroundColor} value={item.sinopse} />}
+                                                                onSave={(val) => this.save(val)}
+                                                                onCancel={this.cancel}
+                                                                saveButtonLabel="Salvar"
+                                                                cancelButtonLabel="Cancelar"
+                                                            //
+                                                            //instructions="Star this repo!"
+                                                            />
 
-                                                        <Typography>{getDataStringFormat(item.ano,'yyyy')}</Typography>
+                                                        </div>
+
+
                                                     </div>
-                                                    <div className="col-sm-4">
+                                                </AccordionDetails>
+                                                <AccordionDetails>
+                                                    <div className="row" style={{ alignItems: 'center' }}>
+                                                        <div className="col-sm-1">
+                                                            <Title fontSize="1.1em" color={'white'}>Ano: </Title>
+                                                        </div>
+                                                        <div className="col-sm-8">
+                                                            <EasyEdit
+                                                                type={Types.DATE}
+                                                                value={item.ano}
+                                                                onSave={(val) => this.save(val)}
+                                                                onCancel={this.cancel}
+                                                                saveButtonLabel="Salvar"
+                                                                cancelButtonLabel="Cancelar"
+                                                                attributes={{ name: "awesome-input", style: { color: 'black' } }}
+                                                            //instructions="Star this repo!"
+                                                            />
 
-                                                        <Typography>{item.classificacao}</Typography>
-                                                    </div>
-                                                    <div className="col-sm-4">
+                                                        </div>
 
-                                                        <Typography>{item.lingua}</Typography>
+
                                                     </div>
                                                 </AccordionDetails>
                                             </Accordion>
@@ -155,16 +303,19 @@ import { getDataStringFormat } from '../../components/Utils/DateTimeUtil';
                                         )) : <Typography>Não há dados</Typography>}
                                     </Box>
                                 </div>
-                            </div>
+                            </Container>
                         </div>
 
                     </div>
                 </div>
-            </div>
+            </div >
 
         )
     }
 }
-
-
-export default withRouter(index);
+index.propTypes = {
+    classes: PropTypes.object.isRequired
+};
+const style = withStyles(styles)
+const IndexMovie = withRouter(index, style)
+export default (IndexMovie);
